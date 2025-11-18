@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
-import models, schemas
+from models.user_model import User
+from schemas.user_schema import TokenData
 from db import database
 from sqlalchemy.orm import Session
 from datetime import timedelta, datetime, timezone
@@ -28,12 +29,8 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-# print(verify_password("hello1230", get_password_hash("hello1230")))
-# print(get_password_hash("hello1230"))
-
-
 def authenticate_user(db: Session, username: str, password: str):
-    user = db.query(models.user).filter(models.User.username == username).first()
+    user = db.query(User).filter(User.username == username).first()
 
     if not user or not verify_password(password, user.hashed_password):
         return False
@@ -67,15 +64,11 @@ def get_current_user(
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        token_data = schemas.TokenData(username=username)
+        token_data = TokenData(username=username)
     except InvalidTokenError:
         raise credentials_exception
 
-    user = (
-        db.query(models.User)
-        .filter(models.User.username == token_data.username)
-        .first()
-    )
+    user = db.query(User).filter(User.username == token_data.username).first()
     if user is None:
         raise credentials_exception
 
