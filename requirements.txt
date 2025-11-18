@@ -8,3 +8,4 @@ asyncpg
 python-dotenv
 python-multipart
 httpx
+requests
