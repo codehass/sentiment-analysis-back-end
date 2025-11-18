@@ -13,11 +13,26 @@ from db.database import engine, Base, get_db
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
+
 
 load_dotenv()
 ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
+
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 Base.metadata.create_all(bind=engine)
 
@@ -39,7 +54,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return db_user
 
 
-@app.post("/auth/login/", response_model=TokenSchema)
+@app.post("/auth/   /", response_model=TokenSchema)
 def login_for_access_token(
     db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ):
@@ -64,7 +79,12 @@ async def read_users_me(current_user: UserSchema = Depends(get_current_user)):
     return current_user
 
 
+# @app.get("/")
+# def get_home(current_user: dict = Depends(get_current_user)):
+#     if current_user:
+#         return {"message": "Hello to the protected route!!"}
+
+
 @app.get("/")
-def get_home(current_user: dict = Depends(get_current_user)):
-    if current_user:
-        return {"message": "Hello to the protected route!!"}
+def get_home():
+    return {"message": "Hello to our sentiment api!!"}
