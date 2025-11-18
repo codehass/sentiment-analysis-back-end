@@ -11,7 +11,7 @@ class UserCreate(UserBase):
     password: str
 
 
-class User(UserBase):
+class UserSchema(UserBase):
     id: int
     is_active: bool
 
