@@ -14,6 +14,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
+from services.sentiment_service import get_sentiment_analysis
 
 
 load_dotenv()
@@ -37,7 +38,7 @@ app.add_middleware(
 Base.metadata.create_all(bind=engine)
 
 
-@app.post("/auth/register/", response_model=UserSchema)
+@app.post("/auth/register", response_model=UserSchema)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
 
@@ -54,7 +55,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return db_user
 
 
-@app.post("/auth/   /", response_model=TokenSchema)
+@app.post("/auth/login", response_model=TokenSchema)
 def login_for_access_token(
     db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ):
@@ -88,3 +89,23 @@ async def read_users_me(current_user: UserSchema = Depends(get_current_user)):
 @app.get("/")
 def get_home():
     return {"message": "Hello to our sentiment api!!"}
+
+
+@app.post("/predict")
+async def get_prediction(text: str):
+    prediction = get_sentiment_analysis(text)
+    label = prediction[0][0]["label"]
+
+    print(label)
+
+    result = ""
+
+    if label == "5 stars" or label == "4 stars":
+        result = "positive"
+    elif label == "1 star" or label == "2 stars":
+        result = "negatif"
+    else:
+        # label == "3 starts":
+        result = "neutre"
+
+    return {"result": result}
