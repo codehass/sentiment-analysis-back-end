@@ -1,32 +1,31 @@
 import os
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from authentication.auth import (
+from .authentication.auth import (
     get_password_hash,
     authenticate_user,
     create_access_token,
     get_current_user,
 )
-from schemas.user_schema import UserSchema, UserCreate, TokenSchema
-from models.user_model import User
-from db.database import engine, Base, get_db
+from .schemas.user_schema import UserSchema, UserCreate, TokenSchema
+from .models.user_model import User
+from .db.database import engine, Base, get_db
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-from services.sentiment_service import get_sentiment_analysis
+from .services.sentiment_service import get_sentiment_analysis
 
 
 load_dotenv()
 ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:3000",
-]
 
+origins = [FRONTEND_URL]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
