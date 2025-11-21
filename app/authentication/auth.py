@@ -3,9 +3,9 @@ from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
-from models.user_model import User
-from schemas.user_schema import TokenData
-from db import database
+from ..models.user_model import User
+from ..schemas.user_schema import TokenData
+from ..db import database
 from sqlalchemy.orm import Session
 from datetime import timedelta, datetime, timezone
 from typing import Optional
