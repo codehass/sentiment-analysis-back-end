@@ -26,3 +26,7 @@ class TokenSchema(BaseModel):
 
 class TokenData(BaseModel):
     username: str
+
+
+class SentimentRequest(BaseModel):
+    text: str
