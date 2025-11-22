@@ -7,7 +7,7 @@ from .authentication.auth import (
     create_access_token,
     get_current_user,
 )
-from .schemas.user_schema import UserSchema, UserCreate, TokenSchema
+from .schemas.user_schema import UserSchema, UserCreate, TokenSchema, SentimentRequest
 from .models.user_model import User
 from .db.database import engine, Base, get_db
 from fastapi.security import OAuth2PasswordRequestForm
@@ -21,9 +21,7 @@ load_dotenv()
 ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 
-
 app = FastAPI()
-
 
 origins = [FRONTEND_URL]
 app.add_middleware(
@@ -79,21 +77,19 @@ async def read_users_me(current_user: UserSchema = Depends(get_current_user)):
     return current_user
 
 
-# @app.get("/")
-# def get_home(current_user: dict = Depends(get_current_user)):
-#     if current_user:
-#         return {"message": "Hello to the protected route!!"}
-
-
 @app.get("/")
 def get_home():
     return {"message": "Hello to our sentiment api!!"}
 
 
 @app.post("/predict")
-async def get_prediction(text: str):
-    prediction = get_sentiment_analysis(text)
+async def get_prediction(
+    req: SentimentRequest,
+    user: dict = Depends(get_current_user),
+):
+    prediction = get_sentiment_analysis(req.text)
     label = prediction[0][0]["label"]
+    score = prediction[0][0]["score"]
 
     print(label)
 
@@ -107,4 +103,4 @@ async def get_prediction(text: str):
         # label == "3 starts":
         result = "neutre"
 
-    return {"result": result}
+    return {"result": result, "score": score}
